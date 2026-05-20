@@ -85,3 +85,98 @@ node command.js --dock
 ⇒ le robot démarre, clean, s'arrête, retourne vers son dock.
 
 On a la base, y'a plus qu'à en faire un truc utilisable ...
+
+# Les évènements
+
+La doc explique qu'on peut attraper divers évènements, notamment "mission". \
+En, même sur sa base, quand on est connecté, on se prend un message par seconde, avec un contenu de ce type :
+
+```json
+onMission {
+  cleanMissionStatus: {
+    cycle: 'none',
+    phase: 'charge',
+    expireM: 0,
+    rechrgM: 0,
+    error: 0,
+    notReady: 0,
+    mssnM: 0,
+    sqft: 0,
+    initiator: '',
+    nMssn: 357
+  },
+  pose: undefined,
+  bin: { present: true, full: false }
+}
+```
+
+Ici, on sait donc qu'il est en charge, que son bac à poussière et là, et qu'il n'est pas plein.
+
+Après un start :
+```json
+{
+  cleanMissionStatus: {
+    cycle: 'clean',
+    phase: 'run',
+    expireM: 90,
+    rechrgM: 0,
+    error: 0,
+    notReady: 0,
+    mssnM: 0,
+    sqft: 0,
+    initiator: 'localApp',
+    nMssn: 357
+  },
+  bin: { present: true, full: false },
+  batPct: 100
+}
+```
+
+On a donc le % de batterie en plus du fait qu'il bosse
+
+Au bout d'un moment, mssnM vaut 13 (minutes depuis le début de la mission ?) et batPct vaut 95.
+
+Il faut plusieurs ordres stop et dock avant qu'il daigne s'arrêter ?
+On passe alors à :
+```
+    cycle: 'clean',
+    phase: 'stop',
+```
+
+Un nouvel appel à "dock" passe ensuite à :
+```
+    cycle: 'clean',
+    phase: 'hmUsrDock',
+```
+
+Je l'attrape pour le ramener à sa base : pas de message d'erreru sonore, mais le statut devient :
+```
+    cycle: 'clean',
+    phase: 'stop',
+    ...
+    error: 0,
+    notReady: 1,
+```
+
+après relance (bouton home), et en le soulevant de nouveau, c'est un bip, le voyant rouge et ce statut :
+```
+    cycle: 'clean',
+    phase: 'stuck',
+    expireM: 90,
+    rechrgM: 0,
+    error: 6,
+    notReady: 0,
+```
+
+Après nouvelle relance, quand il arrive sur son dock :
+```
+    cycle: 'none',
+    phase: 'charge',
+```
+
+En parallèle, on a des events à creuser :
+```
+onUpdate {
+  state: { reported: { cleanMissionStatus: [Object], dock: [Object] } }
+}
+```

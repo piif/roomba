@@ -3,17 +3,47 @@ var config = require('./config.json');
 
 var myRobotViaLocal = new dorita980.Local(config.blid, config.password, config.ip);
 
-const commands = ['--stop', '--start', '--clean', '--dock'];
+const commands = ['--stop', '--start', '--clean', '--dock', '--mission', '--battery', '--sys'];
 const arg = process.argv.find(a => commands.includes(a));
 
 if (!arg) {
-  console.error('Usage: node stop.js --stop | --start | --clean | --dock');
+  console.error('Usage: node stop.js --stop | --start | --clean | --dock | --mission | --battery | --sys');
   process.exit(1);
 }
 
 const action = arg.slice(2); // strip leading '--'
 
-myRobotViaLocal[action]()
+switch(action) {
+  case 'start':
+  case 'stop':
+  case 'clean':
+  case 'dock':
+    method = action;
+    args = [];
+    break;
+  case 'battery':
+    method = 'getRobotState';
+    args = [ ['batPct'] ];
+    break;
+  case 'sys':
+    method = 'getSys';
+    args = [];
+    break;
+  case 'mission':
+    method = 'getBasicMission';
+    args = [];
+    break;
+}
+
+// myRobotViaLocal
+//   .on('update', function (data) {
+//   console.log('onUpdate', data);
+//   })
+//   .on('mission', function (data) {
+//   console.log('onMission', data);
+//   });
+
+myRobotViaLocal[method].apply(myRobotViaLocal, args)
   .then((result) => {
     console.log(result);
     console.log("End.");
