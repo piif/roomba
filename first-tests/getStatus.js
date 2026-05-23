@@ -1,6 +1,7 @@
-var dorita980 = require('dorita980');
+const path = require('path');
+const config = require(path.join(__dirname, '../config/config.json'));
 
-var config = require('./config.json');
+const dorita980 = require('dorita980');
 var myRobotViaLocal = new dorita980.Local(config.blid, config.password, config.ip);
 
 myRobotViaLocal
