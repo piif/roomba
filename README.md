@@ -9,7 +9,7 @@ Ce qui marche actuellement :
 
 Source d'informations : [dorita980](https://github.com/koalazak/dorita980)
 
-D'après ce projet, on devrait pouvoir le controler depuis un programme, donc depuis une page web hébergée dans le réseau domestique. Ça serait mieux que rien.
+D'après ce projet, on devrait pouvoir controler le robot depuis un programme, donc depuis une page web hébergée dans le réseau domestique. Ça serait mieux que rien.
 
 # Premiers tests
 

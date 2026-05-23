@@ -1,4 +1,13 @@
 {
+  "name": "roomba-local-control",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local Roomba control with dorita980, CLI tests, and mock client",
+  "main": "src/cli/robot-cli.js",
+  "scripts": {
+    "cli": "node src/cli/robot-cli.js",
+    "mock:cli": "node src/cli/robot-cli.js --mode=mock"
+  },
   "dependencies": {
     "dorita980": "^4.0.0"
   }
