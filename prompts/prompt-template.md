@@ -1,20 +1,18 @@
-# Prompt Title
+# Titre du prompt
 
-## Goal
-Describe the target outcome.
+## But
+Décrire le but global de ce prompt
 
-## Scope
-- In scope:
-- Out of scope:
+## Périmètre
+- Dans le scope:
+- Hors scope:
 
-## Constraints
-- Keep CommonJS modules.
-- Keep compatibility with `src/cli/robot-cli.js`.
-- Add or update CLI tests when behavior changes.
+## Constraintes
+- ...
 
 ## Validation
-- Commands to run:
-- Expected outputs:
+- Commandes à lancer:
+- Attendus:
 
 ## Notes
-Extra context and assumptions.
+Infos supplémentaires, présupposés, ...

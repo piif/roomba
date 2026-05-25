@@ -61,8 +61,8 @@ class RobotClient extends EventEmitter {
             'bootloaderVer', 'soundVer', 'batteryType'
         ]).then((rawInfo) => {
             return {
-                name: this.name,
-                mac: this.mac,
+                name: rawInfo.name,
+                mac: rawInfo.mac,
                 IP: intToIP(rawInfo.netinfo.addr),
                 wifi: unhex(rawInfo.wlcfg.ssid),
                 sku: rawInfo.sku,
@@ -85,7 +85,7 @@ class RobotClient extends EventEmitter {
         return this.getRobotProperties([
             'cleanMissionStatus', 'bin', 'batPct'
         ]).then((rawInfo) => {
-            var status;
+            var status, mission;
             if (rawInfo.cleanMissionStatus.error == 0) {
                 if (rawInfo.cleanMissionStatus.notReady != 0) {
                     status = "NotReady";
@@ -95,11 +95,18 @@ class RobotClient extends EventEmitter {
             } else {
                 status = `Error ${rawInfo.cleanMissionStatus.error}`
             }
+            if (rawInfo.cleanMissionStatus.cycle == "none") {
+                mission = "none";
+            } else {
+                mission = `${rawInfo.cleanMissionStatus.cycle}:${rawInfo.cleanMissionStatus.phase}`
+            }
             return {
-                status: status,
-                cycle: rawInfo.cleanMissionStatus.cycle,
-                phase: rawInfo.cleanMissionStatus.phase,
-                battery: rawInfo.batPct,
+                status,
+                mission,
+                battery: {
+                    charging: (rawInfo.cleanMissionStatus.phase == 'charge'),
+                    percent: rawInfo.batPct
+                },
                 bin: {
                     present: rawInfo.bin.present,
                     full: rawInfo.bin.full
