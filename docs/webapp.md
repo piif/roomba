@@ -91,3 +91,24 @@ curl -s -X POST http://localhost:3210/api/actions/clean
 - Pas d'authentification utilisateur
 - Pas de websocket (rafraichissement manuel)
 - Gestion d'erreur simple via bannière
+
+## CI Docker (GitHub Actions)
+Le workflow [`.github/workflows/docker-image.yml`](../.github/workflows/docker-image.yml) construit l'image Docker sur:
+- `push` sur `main`
+- `push` de tags `v*`
+- `pull_request` (build sans push)
+- `workflow_dispatch`
+
+Architectures cibles:
+- `linux/amd64`
+- `linux/arm/v7`
+
+Publication:
+- Registry: `ghcr.io`
+- Image: `ghcr.io/<owner>/<repo>`
+- Tags automatiques: `latest` (branche par défaut), nom de branche, tag git, SHA
+
+Prerequis GitHub:
+- Autoriser les GitHub Actions sur le dépôt
+- Laisser le `GITHUB_TOKEN` avec permission `packages: write` (déjà demandé dans le workflow)
+- Si l'image est privée, vérifier les permissions de lecture du package GHCR côté utilisateur/organisation

@@ -1,0 +1,30 @@
+services:
+  roomba-web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: roomba-web
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      ROOMBA_BLID: ${ROOMBA_BLID}
+      ROOMBA_PASSWORD: ${ROOMBA_PASSWORD}
+      ROOMBA_IP: ${ROOMBA_IP}
+    command:
+      - node
+      - src/web/web-server.js
+      - --mode=${ROOMBA_MODE:-real}
+      - --lang=${WEB_LANG:-fr}
+      - --port=3000
+    restart: unless-stopped
+
+  roomba-cli:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    profiles: ["cli"]
+    environment:
+      ROOMBA_BLID: ${ROOMBA_BLID}
+      ROOMBA_PASSWORD: ${ROOMBA_PASSWORD}
+      ROOMBA_IP: ${ROOMBA_IP}
+    entrypoint: ["node", "src/cli/robot-cli.js", "--mode=${ROOMBA_MODE:-real}"]
