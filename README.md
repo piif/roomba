@@ -14,3 +14,7 @@ D'après ce projet, on devrait pouvoir controler le robot depuis un programme, d
 # Premiers tests
 
 Voir [docs/exploration.md](docs/exploration.md)
+
+# WebApp locale
+
+Voir [docs/webapp.md](docs/webapp.md)

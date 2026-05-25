@@ -6,9 +6,12 @@
   "main": "src/cli/robot-cli.js",
   "scripts": {
     "cli": "node src/cli/robot-cli.js",
-    "mock:cli": "node src/cli/robot-cli.js --mode=mock"
+    "mock:cli": "node src/cli/robot-cli.js --mode=mock",
+    "web": "node src/web/web-server.js --mode=real --lang=fr",
+    "mock:web": "node src/web/web-server.js --mode=mock --lang=fr"
   },
   "dependencies": {
-    "dorita980": "^4.0.0"
+    "dorita980": "^4.0.0",
+    "express": "^5.2.1"
   }
 }

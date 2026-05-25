@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a8f6a" />
+    <title>Roomba Control</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="apple-touch-icon" href="/assets/favicon.svg" />
+    <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+    <header class="topbar">
+        <h1 id="appTitle">Roomba Control</h1>
+        <button id="refreshButton" class="secondary">Refresh</button>
+    </header>
+
+    <div id="errorBanner" class="error hidden" role="alert"></div>
+
+    <nav class="tabs" aria-label="Pages">
+        <button class="tab active" data-page="home" id="tabHome">Home</button>
+        <button class="tab" data-page="planning" id="tabPlanning">Planning</button>
+        <button class="tab" data-page="details" id="tabDetails">Details</button>
+    </nav>
+
+    <main>
+        <section id="page-home" class="page active">
+            <h2 id="homeTitle">Robot Status</h2>
+            <div class="card-grid">
+                <article class="card">
+                    <h3 id="labelName">Name</h3>
+                    <p id="robotName">-</p>
+                </article>
+                <article class="card">
+                    <h3 id="labelMission">Mission</h3>
+                    <p id="robotMission">-</p>
+                </article>
+                <article class="card">
+                    <h3 id="labelBattery">Battery</h3>
+                    <p><span id="robotBattery">-</span> <span id="batteryCharging"></span></p>
+                </article>
+                <article class="card">
+                    <h3 id="labelBin">Bin</h3>
+                    <p id="robotBin">-</p>
+                </article>
+            </div>
+            <div class="actions">
+                <button id="cleanButton" class="primary">Clean</button>
+                <button id="stopButton" class="warning">Stop</button>
+                <button id="dockButton" class="primary">Dock</button>
+            </div>
+        </section>
+
+        <section id="page-planning" class="page">
+            <h2 id="planningTitle">Planning</h2>
+            <div id="planningList" class="planning-list"></div>
+            <button id="confirmPlanningButton" class="primary hidden">Confirm</button>
+        </section>
+
+        <section id="page-details" class="page">
+            <h2 id="detailsTitle">Technical Details</h2>
+            <pre id="detailsJson" class="details">{}</pre>
+        </section>
+    </main>
+
+    <script src="/app-config.js"></script>
+    <script src="/app.js"></script>
+</body>
+</html>

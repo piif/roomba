@@ -11,7 +11,7 @@ function createRobotClient(mode) {
     const config = resolveConfig();
     if (!config) {
         throw new Error(
-        'Missing robot config. Provide config/config.json or ROOMBA_BLID/ROOMBA_PASSWORD/ROOMBA_IP env vars.'
+            'Missing robot config. Provide config/config.json or ROOMBA_BLID/ROOMBA_PASSWORD/ROOMBA_IP env vars.'
         );
     }
 
