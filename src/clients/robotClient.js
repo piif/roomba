@@ -119,13 +119,10 @@ class RobotClient extends EventEmitter {
         if (newPlanning) {
             // TODO : set planning from array
             const rawPlanning = this.convertToScheduleFormat(newPlanning);
-            console.log("rawPlanning=",newPlanning, "=>", rawPlanning);
             return this.setRobotProperties({cleanSchedule: rawPlanning})
                 .then((state) => {
-                    console.log("then", state)
                     return this.getRobotProperties(['cleanSchedule'])
                         .then((rawPlanning) => {
-                            console.log("then2", state)
                             return this.convertFromScheduleFormat(rawPlanning.cleanSchedule)
                         });
                 });
@@ -136,5 +133,5 @@ class RobotClient extends EventEmitter {
 }
 
 module.exports = {
-  RobotClient
+    RobotClient
 };

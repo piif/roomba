@@ -10,6 +10,7 @@
             tabDetails: 'Details',
             homeTitle: 'Robot Status',
             labelName: 'Name',
+            labelStatus: 'Status',
             labelMission: 'Mission',
             labelBattery: 'Battery',
             labelBin: 'Bin',
@@ -26,6 +27,23 @@
             inactive: 'Inactive',
             active: 'Active',
             errorPrefix: 'Request failed',
+            statuses: {
+                Ready: 'Ready',
+                NotReady: 'Not ready',
+                Error: 'Error'
+            },
+            missionCycles: {
+                none: 'None',
+                clean: 'Cleaning',
+                start: 'Start'
+            },
+            missionPhases: {
+                charge: 'Charging',
+                run: 'Running',
+                stop: 'Stopped',
+                hmUsrDock: 'Returning home',
+                stuck: 'Stuck'
+            },
             days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         },
         fr: {
@@ -36,6 +54,7 @@
             tabDetails: 'Details',
             homeTitle: 'Etat du robot',
             labelName: 'Nom',
+            labelStatus: 'Statut',
             labelMission: 'Mission',
             labelBattery: 'Batterie',
             labelBin: 'Bac',
@@ -52,6 +71,23 @@
             inactive: 'Inactif',
             active: 'Actif',
             errorPrefix: 'Echec de la requete',
+            statuses: {
+                Ready: 'Pret',
+                NotReady: 'Indisponible',
+                Error: 'Erreur'
+            },
+            missionCycles: {
+                none: 'Aucune',
+                clean: 'Nettoyage',
+                start: 'Demarrage'
+            },
+            missionPhases: {
+                charge: 'En charge',
+                run: 'En cours',
+                stop: 'Arrete',
+                hmUsrDock: 'Retour base',
+                stuck: 'Bloque'
+            },
             days: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
         }
     };
@@ -79,6 +115,7 @@
         setText('tabDetails', i18n.tabDetails);
         setText('homeTitle', i18n.homeTitle);
         setText('labelName', i18n.labelName);
+        setText('labelStatus', i18n.labelStatus);
         setText('labelMission', i18n.labelMission);
         setText('labelBattery', i18n.labelBattery);
         setText('labelBin', i18n.labelBin);
@@ -118,6 +155,45 @@
         return mission && mission !== 'none';
     }
 
+    function isRobotReady(status) {
+        return status === 'Ready';
+    }
+
+    function isRobotDocked(status) {
+        return !!(status && status.battery && status.battery.charging);
+    }
+
+    function translateStatus(status) {
+        if (!status) {
+            return '-';
+        }
+
+        if (status.startsWith('Error ')) {
+            return `${i18n.statuses.Error} ${status.slice('Error '.length)}`;
+        }
+
+        return i18n.statuses[status] || status;
+    }
+
+    function translateMission(mission) {
+        if (!mission) {
+            return '-';
+        }
+
+        if (mission === 'none') {
+            return i18n.missionCycles.none || mission;
+        }
+
+        const [cycle, phase] = mission.split(':');
+        if (!phase) {
+            return i18n.missionCycles[cycle] || mission;
+        }
+
+        const translatedCycle = i18n.missionCycles[cycle] || cycle;
+        const translatedPhase = i18n.missionPhases[phase] || phase;
+        return `${translatedCycle}: ${translatedPhase}`;
+    }
+
     function toBinLabel(bin) {
         if (!bin || !bin.present) {
             return i18n.binMissing;
@@ -130,15 +206,19 @@
 
     function renderStatus(data) {
         setText('robotName', data.config.name || '-');
-        setText('robotMission', data.status.mission || '-');
+        setText('robotStatus', translateStatus(data.status.status));
+        setText('robotMission', translateMission(data.status.mission));
         setText('robotBattery', `${data.status.battery.percent}%`);
         setText('batteryCharging', data.status.battery.charging ? i18n.charging : '');
         setText('robotBin', toBinLabel(data.status.bin));
 
+        const ready = isRobotReady(data.status.status);
         const running = isMissionRunning(data.status.mission);
-        byId('cleanButton').classList.toggle('hidden', running);
-        byId('stopButton').classList.toggle('hidden', !running);
-        byId('dockButton').classList.toggle('hidden', !running);
+        const docked = isRobotDocked(data.status);
+
+        byId('cleanButton').classList.toggle('hidden', !ready || running);
+        byId('stopButton').classList.toggle('hidden', !ready || !running);
+        byId('dockButton').classList.toggle('hidden', !ready || (!running && docked));
     }
 
     function setActivePage(page) {

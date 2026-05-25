@@ -29,11 +29,13 @@ Créer le squlette d'une web app de controle du robot.
   - Le serveur web permet de servir la page d'accueil de la webapp et une API permettant de transmettre
     les requête à l'instance de RobotClient
 - Cinématique de la web app:
-  - La page d'acceuil affiche le status du robot (mission en cours, état de charge, état de la poubelle ("bin")). \
+  - La page d'acceuil affiche le status du robot (statut, mission en cours, état de charge, état de la poubelle ("bin")). \
     Un bouton "actualiser" permet de lancer une requête pour obtenir de nouveau les informations actualisées.
   - Des boutons permettent de :
     - si le robot est à l'arrêt: lancer un clean;
+    - si le robot est à l'arrêt hors de son dock: renvoyer le robot à sa base;
     - si une mission est en cours: renvoyer le robot à sa base ou l'arrêter sans retour à la base.
+    - si le statut est "NotReady", aucune action n'est possible
   - Un menu permet d'accéder à une page de planning :
     - Le planning courant est affiché sous forme de liste : une ligne par jour du dimanche au samedi,
       avec un icone "inactif", ou l'heure de lancement

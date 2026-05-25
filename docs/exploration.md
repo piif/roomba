@@ -172,6 +172,29 @@ onUpdate {
 }
 ```
 
+Quand le robot est hors mission, mais hors dock :
+```
+    cycle: 'none',
+    phase: 'stop',
+    error: 0,
+    notReady: 0,
+```
+
+S'il est dans une position exotiques (les roues pas au sol) :
+```
+    cycle: 'none',
+    phase: 'stop',
+    error: 0,
+    notReady: 1,
+```
+
+Quand le robot est hors mission, et qu'on lnce une mission "retour dock" :
+```
+    cycle: 'dock',
+    phase: 'hmUsrDock',
+```
+
+
 ## Conclusion
 
 Globalement, ce qui peut être intéressant à récupérer :
