@@ -245,6 +245,39 @@
         return `${h}:${m}`;
     }
 
+    function normalizeToQuarterHour(hour, minute) {
+        const safeHour = Number.isNaN(hour) ? 0 : hour;
+        const safeMinute = Number.isNaN(minute) ? 0 : minute;
+
+        const quarterMinute = Math.round(safeMinute / 15) * 15;
+        const carryHour = Math.floor(quarterMinute / 60);
+        const normalizedMinute = quarterMinute % 60;
+        const normalizedHour = (safeHour + carryHour + 24) % 24;
+
+        return [normalizedHour, normalizedMinute];
+    }
+
+    function readNormalizedTime(timeInput) {
+        const [rawHour, rawMinute] = timeInput.value
+            .split(':')
+            .map((value) => Number.parseInt(value, 10));
+
+        const [hour, minute] = normalizeToQuarterHour(rawHour, rawMinute);
+
+        timeInput.value = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        return [hour, minute];
+    }
+
+    function normalizePlanningToQuarterHours(planning) {
+        return planning.map((entry) => {
+            if (!entry) {
+                return null;
+            }
+
+            return normalizeToQuarterHour(entry[0], entry[1]);
+        });
+    }
+
     function onPlanningChanged(dayIndex, activeInput, timeInput) {
         if (!state.editedPlanning) {
             return;
@@ -253,7 +286,7 @@
         if (!activeInput.checked) {
             state.editedPlanning[dayIndex] = null;
         } else {
-            const [hour, minute] = timeInput.value.split(':').map((value) => Number.parseInt(value, 10));
+            const [hour, minute] = readNormalizedTime(timeInput);
             state.editedPlanning[dayIndex] = [hour, minute];
         }
 
@@ -285,6 +318,7 @@
 
             const timeInput = document.createElement('input');
             timeInput.type = 'time';
+            timeInput.step = 900;
             timeInput.value = toTimeValue(entry);
             timeInput.disabled = !entry;
 
@@ -336,16 +370,20 @@
             return;
         }
 
-        const payload = await api('/api/planning', {
+        const normalizedPlanning = normalizePlanningToQuarterHours(state.editedPlanning);
+        state.editedPlanning = normalizedPlanning;
+
+        await api('/api/planning', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ planning: state.editedPlanning })
+            body: JSON.stringify({ planning: normalizedPlanning })
         });
 
-        state.planning = payload.planning;
-        state.editedPlanning = JSON.parse(JSON.stringify(payload.planning));
-        byId('confirmPlanningButton').classList.add('hidden');
-        renderPlanningRows(state.editedPlanning);
+        await new Promise((resolve) => {
+            setTimeout(resolve, 2000);
+        });
+
+        await loadPlanning();
     }
 
     function bindEvents() {

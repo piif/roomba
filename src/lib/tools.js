@@ -23,8 +23,51 @@ function filterProperties (obj, properties) {
     return ret;
 }
 
+function deepCopy(dst, src) {
+    for (var p in src) {
+        if (src[p] !== null && typeof src[p] === 'object') {
+            if (dst.hasOwnProperty(p)) {
+                this.deepCopy(dst[p], src[p]);
+            } else {
+                dst[p] = src[p]
+            }
+        } else {
+            dst[p] = src[p]
+        }
+    }
+}
+
+function deepEquals(a, b) {
+    if (Array.isArray(a) && Array.isArray(b)) {
+        return arrayEquals(a, b);
+    }
+    const ta = typeof a, tb = typeof b;
+    if (ta != tb) {
+        return false;
+    }
+    if (ta !== 'object') {
+        return a === b;
+    }
+    if (Object.keys(a).length != Object.keys(b).length) {
+        return false;
+    }
+    for (const p in a) {
+        if (!deepEquals(a[p], b[p])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function arrayEquals(a, b) {
+    return a.length == b.length
+        && a.find((item, index, _) => !deepEquals(item, b[index])) === undefined;
+}
+
 module.exports = {
     unhex,
     intToIP,
-    filterProperties
+    filterProperties,
+    deepCopy,
+    deepEquals
 };

@@ -9,8 +9,10 @@ class DoritaClient extends RobotClient {
         this.local = new dorita980.Local(config.blid, config.password, config.ip);
     }
 
-    
     getRobotProperties(properties) {
+        if (!properties) {
+            return this.local.getPreferences();
+        };
         return this.local.getRobotState(properties)
             .then((state) => filterProperties(state, properties));
     }
@@ -40,6 +42,11 @@ class DoritaClient extends RobotClient {
 
     on(eventName, handler) {
         this.local.on(eventName, handler);
+        return this;
+    }
+
+    off(eventName, handler) {
+        this.local.off(eventName, handler);
         return this;
     }
 }

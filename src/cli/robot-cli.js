@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
 const { createRobotClient } = require('../app/robotService');
+const { deepEquals } = require('../lib/tools');
 
 const allowedCommands = [
     'start', 'stop', 'clean', 'dock',
-    'config', 'status', 'watch', 'planning' ];
+    'config', 'status', 'all',
+    'watch', 'planning'
+];
 
 function parseArgs(argv) {
     var otherArgs = [];
@@ -25,8 +28,67 @@ function parseArgs(argv) {
 
 function printUsage() {
     console.error(
-        'Usage: node src/cli/robot-cli.js [--mode=real|mock] <start|stop|clean|dock|config|status|watch|planning [ "hh:mm,hh:mm,..." ]>'
+        'Usage: node src/cli/robot-cli.js [--mode=real|mock] <start|stop|clean|dock|config|status|all|watch|planning [ "hh:mm,hh:mm,..." ]>'
     );
+}
+
+async function runCommand(client, mode, command, otherArgs) {
+    if (command === 'watch') {
+        var lastEvents = {};
+        client
+            .on('mission', (data) => {
+                if (lastEvents.hasOwnProperty('mission')
+                    && deepEquals(lastEvents.mission, data)) {
+                    data = null;
+                } else {
+                    lastEvents.mission = data;
+                }
+                console.log(JSON.stringify({ event: 'mission', data }, null, 2));
+            })
+            .on('update', (data) => {
+                if (lastEvents.hasOwnProperty('update')
+                    && deepEquals(lastEvents.update, data)) {
+                    data = null;
+                } else {
+                    lastEvents.update = data;
+                }
+                console.log(JSON.stringify({ event: 'update', data }, null, 2));
+            });
+
+        console.log(JSON.stringify({ ok: true, mode, command: 'watch', info: 'Watching events. Press Ctrl+C to stop.' }));
+
+        if (mode === 'mock') {
+            setInterval(() => {
+                client.emitMission().catch((error) => {
+                    console.error(error.message);
+                });
+            }, 1000);
+        }
+        return undefined;
+
+    } else {
+
+        if (command === 'planning' && otherArgs.length != 0) {
+            const days = otherArgs[0].split(',');
+            if (days.length != 7) {
+                console.error('Invalid planning : expected 7 comma separated values');
+                return 1;
+            }
+            const planning = days.map(
+                (d) => (
+                    d=='' ? null : d.split(':').map(
+                        (n)=>Number.parseInt(n)
+                    )
+                )
+            );
+            otherArgs = [ planning ];
+        }
+        const response = await client[command].apply(client, otherArgs);
+
+        console.log(JSON.stringify({ ok: true, mode, command, response }, null, 2));
+
+        return 0;
+    }
 }
 
 async function run() {
@@ -34,67 +96,31 @@ async function run() {
 
     if (commands.length == 0) {
         printUsage();
-        process.exit(1);
+        return 1;
     }
 
     if (!['real', 'mock'].includes(mode)) {
         console.error('Invalid mode. Expected --mode=real or --mode=mock.');
-        process.exit(1);
+        return 1;
     }
 
     const client = createRobotClient(mode);
 
     for (command of commands) {
-        if (command === 'watch') {
-            client
-                .on('mission', (data) => {
-                    console.log(JSON.stringify({ event: 'mission', data }, null, 2));
-                })
-                .on('update', (data) => {
-                    console.log(JSON.stringify({ event: 'update', data }, null, 2));
-                });
-
-            console.log(JSON.stringify({ ok: true, mode, command: 'watch', info: 'Watching events. Press Ctrl+C to stop.' }));
-
-            if (mode === 'mock') {
-                setInterval(() => {
-                    client.mission().catch((error) => {
-                    console.error(error.message);
-                    });
-                }, 1000);
-            } else {
-                await client.mission();
-            }
-
-        } else {
-
-            if (command === 'planning' && otherArgs.length != 0) {
-                days = otherArgs[0].split(',');
-                if (days.length != 7) {
-                    console.error('Invalid planning : expected 7 comma separated values');
-                    process.exit(1);
-                }
-                planning = [];
-                for (d of days) {
-                    if (d == '') {
-                        planning.push(null);
-                    } else {
-                        const hm = d.split(':')
-                        planning.push([ Number.parseInt(hm[0]), Number.parseInt(hm[1]) ])
-                    }
-                }
-                otherArgs = [ planning ];
-            }
-            const response = await client[command].apply(client, otherArgs);
-
-            console.log(JSON.stringify({ ok: true, mode, command, response }, null, 2));
+        status = await runCommand(client, mode, command, otherArgs);
+        if (status !== 0) {
+            return status; // error or "wait forever"
         }
     }
+    return 0;
 }
 
 run()
-    .then((_) => {
-        process.exit(0);
+    .then((status) => {
+        if (status !== undefined) {
+            process.exit(status);
+        }
+        // else, background tasks will continue until Ctrl-C
     })
     .catch((error) => {
         console.error(error); //JSON.stringify({ ok: false, error: error.message }, null, 2));

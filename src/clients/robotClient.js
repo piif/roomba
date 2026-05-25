@@ -12,7 +12,6 @@ class RobotClient extends EventEmitter {
     }
 
     convertFromScheduleFormat(apiSchedule) {
-        console.log("convertFromScheduleFormat", apiSchedule);
         if (!apiSchedule || !apiSchedule.cycle || !apiSchedule.h || !apiSchedule.m) {
             return null;
         }
@@ -81,6 +80,10 @@ class RobotClient extends EventEmitter {
         });
     }
 
+    all() {
+        return this.getRobotProperties().then((rawInfo) => rawInfo);
+    }
+
     status() {
         return this.getRobotProperties([
             'cleanMissionStatus', 'bin', 'batPct'
@@ -117,16 +120,11 @@ class RobotClient extends EventEmitter {
 
     planning(newPlanning = null) {
         if (newPlanning) {
-            // TODO : set planning from array
             const rawPlanning = this.convertToScheduleFormat(newPlanning);
-            return this.setRobotProperties({cleanSchedule: rawPlanning})
-                .then((state) => {
-                    return this.getRobotProperties(['cleanSchedule'])
-                        .then((rawPlanning) => {
-                            return this.convertFromScheduleFormat(rawPlanning.cleanSchedule)
-                        });
-                });
+            // console.log("set planning to", rawPlanning);
+            return this.setRobotProperties({cleanSchedule: rawPlanning});
         }
+
         return this.getRobotProperties(['cleanSchedule'])
             .then((rawPlanning) => this.convertFromScheduleFormat(rawPlanning.cleanSchedule));
     }

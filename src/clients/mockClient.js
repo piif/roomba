@@ -1,4 +1,4 @@
-const { filterProperties } = require('../lib/tools');
+const { filterProperties, deepCopy } = require('../lib/tools');
 const { RobotClient } = require('./robotClient');
 
 class MockClient extends RobotClient {
@@ -64,21 +64,10 @@ class MockClient extends RobotClient {
         };
     }
 
-    deepAssign(dst, src) {
-        for (var p in src) {
-            if (src[p] !== null && typeof src[p] === 'object') {
-                if (dst.hasOwnProperty(p)) {
-                    this.deepAssign(dst[p], src[p]);
-                } else {
-                    dst[p] = src[p]
-                }
-            } else {
-                dst[p] = src[p]
-            }
-        }
-    }
-
     getRobotProperties(properties) {
+        if (!properties) {
+            return Promise.resolve(this.state);
+        };
         return Promise.resolve(
             filterProperties(this.state, properties)
         );
@@ -86,7 +75,7 @@ class MockClient extends RobotClient {
 
     setRobotProperties(properties) {
         return Promise.resolve(
-            this.deepAssign(this.state, properties)
+            this.deepCopy(this.state, properties)
         );
     }
   
