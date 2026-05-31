@@ -18,3 +18,10 @@ Voir [docs/exploration.md](docs/exploration.md)
 # WebApp locale
 
 Voir [docs/webapp.md](docs/webapp.md)
+
+# Historique
+
+## Version 1
+
+Première version fonctionnelle.
+Projet rendu public.
