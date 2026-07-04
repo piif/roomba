@@ -340,12 +340,12 @@
     }
 
     async function loadHome() {
-        const status = await api('/api/status');
+        const status = await api('api/status');
         renderStatus(status);
     }
 
     async function loadPlanning() {
-        const payload = await api('/api/planning');
+        const payload = await api('api/planning');
         state.planning = payload.planning;
         state.editedPlanning = JSON.parse(JSON.stringify(payload.planning));
         byId('confirmPlanningButton').classList.add('hidden');
@@ -353,12 +353,12 @@
     }
 
     async function loadDetails() {
-        const payload = await api('/api/details');
+        const payload = await api('api/details');
         byId('detailsJson').textContent = JSON.stringify(payload.details, null, 2);
     }
 
     async function sendAction(action) {
-        await api(`/api/actions/${action}`, {
+        await api(`api/actions/${action}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -373,7 +373,7 @@
         const normalizedPlanning = normalizePlanningToQuarterHours(state.editedPlanning);
         state.editedPlanning = normalizedPlanning;
 
-        await api('/api/planning', {
+        await api('api/planning', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ planning: normalizedPlanning })
