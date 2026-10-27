@@ -7,7 +7,7 @@ Décrire le but global de ce prompt
 - Dans le scope:
 - Hors scope:
 
-## Constraintes
+## Contraintes
 - ...
 
 ## Validation

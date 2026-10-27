@@ -106,8 +106,8 @@ async function run() {
 
     const client = createRobotClient(mode);
 
-    for (command of commands) {
-        status = await runCommand(client, mode, command, otherArgs);
+    for (const command of commands) {
+        const status = await runCommand(client, mode, command, otherArgs);
         if (status !== 0) {
             return status; // error or "wait forever"
         }
