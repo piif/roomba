@@ -121,6 +121,19 @@ async function main() {
         }
     });
 
+    app.put('/api/tz_offset', async (req, res) => {
+        try {
+            console.log("body=", req.body);
+            const offset = req.body && req.body.offset;
+            const offsetMinutes = Number(offset.slice(0,3))*60 + Number(offset.slice(3,5));
+            console.log("offsetMinutes=", offsetMinutes);
+            const response = await robot.tz_offset(offsetMinutes);
+            res.json({ ok: true, response });
+        } catch (error) {
+            res.status(500).json({ error: serializeError(error) });
+        }
+    });
+
     app.get('/api/details', async (_req, res) => {
         try {
             const details = await robot.config();

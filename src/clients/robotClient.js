@@ -56,7 +56,7 @@ class RobotClient extends EventEmitter {
     config() {
         return this.getRobotProperties([
             'netinfo', 'wlcfg', 'mac', 'name', 'batInfo',
-            'sku', 'timezone', 'wifiSwVer', 'softwareVer', 'mobilityVer',
+            'sku', 'timezone', 'tz', 'wifiSwVer', 'softwareVer', 'mobilityVer',
             'bootloaderVer', 'soundVer', 'batteryType'
         ]).then((rawInfo) => {
             return {
@@ -75,6 +75,10 @@ class RobotClient extends EventEmitter {
                     soundVer: rawInfo.soundVer,
                     wifiSwVer: rawInfo.wifiSwVer,
                     softwareVer: rawInfo.softwareVer
+                },
+                timezone: {
+                    name: rawInfo.timezone,
+                    offset: rawInfo.tz.events[0].off
                 }
             };
         });
@@ -127,6 +131,18 @@ class RobotClient extends EventEmitter {
 
         return this.getRobotProperties(['cleanSchedule'])
             .then((rawPlanning) => this.convertFromScheduleFormat(rawPlanning.cleanSchedule));
+    }
+
+    tz_offset(new_offset = null) {
+        if (new_offset) {
+            return this.setRobotProperties({ tz: { 
+                ver: 0,
+                events: [{ dt: 0, off: new_offset }, { dt: 0, off: 0 }, { dt: 0, off: 0 }]
+            } });
+        }
+
+        return this.getRobotProperties(['tz'])
+            .then((rawInfo) => rawInfo.tz.events[0].off);
     }
 }
 
